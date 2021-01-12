@@ -1,0 +1,121 @@
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Board{
+ 
+    List<Point> freespaces;
+
+    Scanner scan = new Scanner(System.in);
+    int[][] board = new int[3][3];
+
+    public Board() {}
+    
+    public int minimax(int depth, int turn) {  //depth is the maximum amount of nodes to search before making move
+                                              //turn is the indication of player 1 or 2, cpu or user respectively
+      if (Xwin()){ return +1;} 
+      if (Owin()){ return -1;}
+      
+      List<Point> pointsAvailable = getAvailableStates();
+      
+      if (freespaces.isEmpty()){ return 0;} 
+ 
+        int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;     //
+                                                                 //
+        for (int i = 0; i < freespaces.size(); i++) {           //
+            Point point = freespaces.get(i);                   //
+            if (turn == 1) {                                  // if it is computer turn
+                newMove(point, 1);                           //
+                int movescore = minimax(depth + 1, 2);      //recursively determines the score of the move by the nodes searched + 1 
+                                                           //and finding best move that the User will most likely choose
+                max = Math.max(movescore, max);           // max determines which move is better, movescore or minimum value by determining which move is bigger, this move or max
+                                                         // max is only replaced by a better move, if a better move is found
+                if(movescore >= 0){ if(depth == 0) computersMove = point;} 
+                if(movescore == 1){board[point.x][point.y] = 0; break;} // if the space is not taken and the score is 1, (good score) then break loop and place move
+                if(i == freespaces.size()-1 && max < 0){if(depth == 0)computersMove = point;}
+            }
+             else if (turn == 2) { //if it is user turn
+                newMove(point, 2); 
+                int movescore = minimax(depth + 1, 1);
+                min = Math.min(movescore, min); // finds maximum of movescore and the minimum move score 
+                if(min == -1){board[point.x][point.y] = 0; break;}
+            }
+            board[point.x][point.y] = 0; //Reset this point
+        } 
+        if(turn == 1){return max;}
+        else{return min;}        
+         // easier way to do this which i read about on geeksforgeeks is  --> return turn == 1?max:min; called a tertenary operator i think
+    }
+    
+    public boolean gameEnd()
+ {
+        //Game is over is someone has won, or board is full (draw)
+        return (Xwin() || Owin() || getAvailableStates().isEmpty()); // the .isEmpty method of an ArrayList checks if list is empty by returning true/false value
+    }
+
+    public boolean Xwin() {
+        if ((board[0][0] == board[1][1] && board[0][0] == board[2][2] && board[0][0] == 1) || (board[0][2] == board[1][1] && board[0][2] == board[2][0] && board[0][2] == 1)) {
+            //diagonal win
+            return true;
+        }
+        for (int i = 0; i < 3; ++i) {
+            if (((board[i][0] == board[i][1] && board[i][0] == board[i][2] && board[i][0] == 1)|| (board[0][i] == board[1][i] && board[0][i] == board[2][i] && board[0][i] == 1))) {
+                //column / row win
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean Owin() {
+        if ((board[0][0] == board[1][1] && board[0][0] == board[2][2] && board[0][0] == 2) || (board[0][2] == board[1][1] && board[0][2] == board[2][0] && board[0][2] == 2)) {
+            //diagonal win
+            return true;
+        }
+        for (int i = 0; i < 3; ++i) {
+            if ((board[i][0] == board[i][1] && board[i][0] == board[i][2] && board[i][0] == 2)|| (board[0][i] == board[1][i] && board[0][i] == board[2][i] && board[0][i] == 2)) {
+                //column / row win
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Point> getAvailableStates() { //ArrayList learned by myself. need to use arraylist to add elements (in this case, Point) to a list of available 
+        freespaces = new ArrayList<Point>(); //Point whose length is non static and changes. Array length is static and cannot be changed; 
+        for (int i = 0; i < 3; i++) {       //arraylist length can be changed
+            for (int j = 0; j < 3; j++) {  // this method checks each Point, if it is available ("Empty") 
+                if (board[i][j] == 0) {   //it is added to the List getAvailableStates
+                    freespaces.add(new Point(i, j));
+                }
+            }
+        }
+        return freespaces;
+    }
+
+    public void newMove(Point p, int sign) {
+
+        board[p.x][p.y] = sign;   //sign is 1 for X
+        //sign is 2 for O
+    } 
+    
+    public void move_input(){
+        System.out.println("What is your move?");
+        int x = scan.nextInt();
+        int y = scan.nextInt();
+        Point point = new Point(x, y);
+        newMove(point, 2); 
+    }
+
+    public void printBoard() {
+        System.out.println();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println();
+
+        }
+    }  
+    Point computersMove; 
+}
