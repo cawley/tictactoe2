@@ -1,0 +1,44 @@
+import java.util.Random;
+public class TicTacTest {
+
+    public static void main(String[] args) {
+        Board b = new Board();
+        Random r = new Random();
+        
+        b.printBoard();
+
+      System.out.println("Would you like to move first? Or would you like the computer to move first? Press 2 to move first. Press 1 to pass the first turn to the computer.");
+        int c = b.scan.nextInt();
+        if(c == 1){
+            Point p = new Point(r.nextInt(3), r.nextInt(3));
+            b.newMove(p, 1);
+            b.printBoard();
+        }
+        
+        while (!b.gameEnd()) {
+            System.out.println("Your move: ");
+            Point userMove = new Point(b.scan.nextInt(), b.scan.nextInt()); //shorter than using and declaring a new Scanner 
+            //Sasha show me this trick
+
+            b.newMove(userMove, 2); //2 for O and O is the user
+            b.printBoard();
+            if (b.gameEnd()){ break;}
+            
+            b.minimax(0, 1);  
+            
+            b.newMove(b.computersMove, 1);
+            b.printBoard();
+        }
+        if (b.Xwin()){
+          System.out.println("You lose. What a surprise.");}
+        //no need for an Owin case
+        else {
+          System.out.println("Better luck next time. To me, of course.");}
+    }
+}
+
+
+
+/* After going over this and testing it a few times, I have noticed that if the computer does not recognize a desirable move, it will skip its turn and allow the user to win easily.*/
+/*Oh well, I will fix in SGI. (>_<) <:(
+ * */
